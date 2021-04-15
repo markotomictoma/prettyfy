@@ -1,64 +1,70 @@
 <!DOCTYPE html>
 <html>
 
-<body>
-	<textarea id="txtFrom" name="w3review" rows="20" cols="200">
-AND ( NOT ( OR ( ISNULL ( ShipmentNumber__c ) , ISBLANK ( ShipmentNumber__c ) , BEGINS ( ShipmentNumber__c , '59' ) , BEGINS ( ShipmentNumber__c , '07' ) ) ) , OR ( ISPICKVAL ( Origin , 'Dolphin' ) , ISPICKVAL ( Origin , 'GKP' ) , ISPICKVAL ( Origin , 'ListImport' ) , ISPICKVAL ( Origin , 'Scan' ) , ISPICKVAL ( Origin , 'Enquiryform' ) , ISPICKVAL ( Origin , 'ParcelEurope' ) ) , AND ( PrivateCustomer__c = False ,
-        BEGINS(
-            Account.CSTeamInternational__c,
-            'P GKS Int'
-        ) ) , AND ( CustomerServiceProduct__r.IsInternational__c = True , NOT ( CustomerServiceProduct__r.Name = 'DHL Europaket' ) ) , OR ( ISPICKVAL ( Status , 'New' ) , ISPICKVAL ( Status , 'InProgress' ) ) , OR (        ISBLANK(
-            Subject
-        ) , NOT ( BEGINS ( Subject , 'Error' ) ) ) )
-</textarea>
-<br/>
-<button type="button" onclick="prettyFy();">Make it pretty!</button>
-<br/>
-<textarea id="txtTo" name="w3review" rows="20" cols="200"></textarea>
-</body>
+    <body>
+        <textarea id="txtFrom" name="w3review" rows="20" cols="200">
+    AND ( NOT ( OR ( ISNULL ( ShipmentNumber__c ) , ISBLANK ( ShipmentNumber__c ) , BEGINS ( ShipmentNumber__c , '59' ) , BEGINS ( ShipmentNumber__c , '07' ) ) ) , OR ( ISPICKVAL ( Origin , 'Dolphin' ) , ISPICKVAL ( Origin , 'GKP' ) , ISPICKVAL ( Origin , 'ListImport' ) , ISPICKVAL ( Origin , 'Scan' ) , ISPICKVAL ( Origin , 'Enquiryform' ) , ISPICKVAL ( Origin , 'ParcelEurope' ) ) , AND ( PrivateCustomer__c = False ,
+            BEGINS(
+                Account.CSTeamInternational__c,
+                'P GKS Int'
+            ) ) , AND ( CustomerServiceProduct__r.IsInternational__c = True , NOT ( CustomerServiceProduct__r.Name = 'DHL Europaket' ) ) , OR ( ISPICKVAL ( Status , 'New' ) , ISPICKVAL ( Status , 'InProgress' ) ) , OR (        ISBLANK(
+                Subject
+            ) , NOT ( BEGINS ( Subject , 'Error' ) ) ) )
+        </textarea>
+        <br />
+        <button type="button" onclick="prettyFy();">Make it pretty!</button>
+        <br />
+        <textarea id="txtTo" name="w3review" rows="20" cols="200"></textarea>
+        <script>
+            function prettyFy() {
+                var textToPrettyFy = getTextToPrettyfy();
+                var s = removeSpaces(textToPrettyFy);
+                var functions = getFunctions();
+                functions.forEach(elem => {
+                    var indexes = getIndexes(s, elem);                    
+                    indexes.forEach(index => {
+                        //s = [s.slice(0, index), "\n", s.slice(index)].join(''); // ovo ne radi jer kada se doda novi red indeksi iz getIndexes vise ne vaze
+                    })
+                });
+                setResult(s);
+            }
 
-<script>
-	function prettyFy() {
-		var textToPrettyFy = getTextToPrettyfy();		
-		var s = removeSpaces(textToPrettyFy);
-		var functions = getFunctions();
-		functions.forEach(elem => {
-			getIndexes(s, elem);
-		});
-		setResult(s);
-	}
-	
-	function getFunctions(){
-		return ["and", "not", "or", "isblank", "begins", "ispickval"];
-	}
-	
-	function setResult(text){
-		document.getElementById("txtTo").value = text;
-	}
-	
-	function removeSpaces(text){
-		return text.replace(/\s/g, '');
-	}
-	
-	function getTextToPrettyfy(){
-		return document.getElementById("txtFrom").value;
-	}
-	
-	function getIndexes(text, subText){		
-		var indexes = [];
-		for(var i = 0; i < text.length; i++){
-			var signal = true;
-			for(var j = 0; j < subText.length; j++){
-				if(text[i + j].toUpperCase() !== subText[j].toUpperCase()){
-					signal = false;
-					break;
-				}
-			}
-			if(signal) {
-				indexes.push(i);
-			}
-		}
-		indexes.forEach(elem => console.log(elem));
-	}
-</script>
+            function getFunctions() {
+                return ["and", "not", "or", "isnull", "isblank", "begins", "ispickval"];
+            }
+
+            function setResult(text) {
+                document.getElementById("txtTo").value = text;
+            }
+
+            function removeSpaces(text) {
+                return text.replace(/\s/g, '');
+            }
+
+            function getTextToPrettyfy() {
+                return document.getElementById("txtFrom").value;
+            }
+
+            function getIndexes(text, subText) {
+                subText = subText + "(";  
+                var indexes = [];
+                for (var i = 0; i < text.length; i++) {
+                    var signal = true;                    
+                    for (var j = 0; j < subText.length; j++) {
+                        console.log(text[i + j].toUpperCase() + "   " + subText[j].toUpperCase() + "___________" + subText);
+                        if (text[i + j].toUpperCase() !== subText[j].toUpperCase()) {
+                            signal = false;
+                            break;
+                        }
+                    }
+                    if (signal) {
+                        i = i + subText.length - 1;
+                        indexes.push(i + 1);
+                    }
+                }
+                indexes.forEach(elem => console.log(elem));
+                return indexes;
+            }
+        </script>
+    </body>
 </html>
